@@ -26,18 +26,7 @@ def enterCate(category_id):
 @app.route("/catalogList/addNewItem", methods=['GET', 'POST'])
 def addNewItem():
 	if request.method == 'GET':
-		html = "<html><body>"
-		html += "<form action='/catalogList/addNewItem' method = 'post'>"
-		html += "Item Name: <br>"
-		html += "<input type='text', name='Item Name'><br>"
-		html += "Item Category: <br>"
-		html += "<input type='text', name='Item Category'><br>"
-		html += "Item Info: <br>"
-		html += "<input type=text, name='Item Info'><br>"
-		html += "<input type='submit' value='Submit'>"
-		html += "</form>"
-		html+= "</body></html>"
-		return html
+		return render_template("addNewItem.html")
 	else:
 		categoryName = request.form['Item Category']
 		categoryInStoreList = session.query(Category).filter_by(name=categoryName).all()
