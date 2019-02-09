@@ -49,6 +49,14 @@ def addNewItem():
 		session.commit()
 		return redirect(url_for('catalogList'))
 
+@app.route("/catalogList/deleteItem/<int:item_id>")
+def deleteItem(item_id):
+	item = session.query(CategoryItem).filter_by(id=item_id)[0]
+	category_id = item.category_id
+	session.delete(item)
+	session.commit
+	return redirect(url_for('enterCate', category_id=category_id))
+
 	
 if __name__ == '__main__':
     app.debug = True
