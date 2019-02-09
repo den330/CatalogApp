@@ -54,8 +54,32 @@ def deleteItem(item_id):
 	item = session.query(CategoryItem).filter_by(id=item_id)[0]
 	category_id = item.category_id
 	session.delete(item)
-	session.commit
+	session.commit()
 	return redirect(url_for('enterCate', category_id=category_id))
+
+@app.route("/catalogList/editItem/<int:item_id>", methods=['GET', 'POST'])
+def editItem(item_id):
+	item = session.query(CategoryItem).filter_by(id=item_id)[0]
+	if request.method == "GET":
+		category = session.query(Category).filter_by(id=item.category_id)[0]
+		return render_template("editItem.html", item=item, category=category)
+	else:
+		item.name = request.form["Item Name"]
+		item.info = request.form["Item Info"]
+		categoryName = request.form["Item Category"]
+		categoryInStoreList = session.query(Category).filter_by(name=categoryName).all()
+		if len(categoryInStoreList) == 0:
+			newCate = Category(name=categoryName)
+			session.add(newCate)
+			session.commit()
+			item.category_id = newCate.id
+		else:
+			item.category_id = categoryInStoreList[0].id
+		session.add(item)
+		session.commit()
+		return redirect(url_for('enterCate', category_id=item.category_id))
+
+
 
 	
 if __name__ == '__main__':

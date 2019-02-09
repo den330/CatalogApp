@@ -10,7 +10,7 @@
 			<div class = "ItemNames"
 				<a href= '{{url_for('enterItem', category_id = category_id, item_id=item.id)}}'> {{item.name}} </a>
 			</div>
-			<a href = ''> Edit </a> <br>
+			<a href = '{{url_for('editItem', item_id=item.id)}}'> Edit </a> <br>
 			<a href = '{{url_for('deleteItem', item_id=item.id)}}'> Delete </a>
 		</div>
 		<br>
