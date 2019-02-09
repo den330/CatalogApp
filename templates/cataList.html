@@ -1,0 +1,18 @@
+<html>
+	<head>
+	</head>
+	<body>
+		<a href='/catalogList/addNewItem'>Add Item</a>
+		{% for cate in cates %}
+		<div class = 'cate'>
+			<span class= 'cateName'>
+				<a href= '{{url_for('enterCate', category_id = cate.id)}}'>
+				<p>{{cate.name}}</p>
+			</span>
+		</div>
+		{% endfor %}
+	</body>
+</html>
+
+
+

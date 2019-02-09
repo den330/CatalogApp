@@ -15,10 +15,13 @@ session = DBSession()
 @app.route("/")
 @app.route("/catalogList")
 def catalogList():
-	html = "<html><body>"
-	html += "<a href='/catalogList/addNewItem'>Add Item</a>"
-	html += "</body></html>"
-	return html
+	cates = session.query(Category).all()
+	return render_template('cataList.html', cates=cates)
+
+@app.route("/catalogList/<int:category_id>")
+def enterCate(category_id):
+	cateItems = session.query(CategoryItem).filter_by(category_id=category_id).all()
+	return render_template("cataItems.html", items=cateItems)
 
 @app.route("/catalogList/addNewItem", methods=['GET', 'POST'])
 def addNewItem():
