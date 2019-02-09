@@ -21,7 +21,13 @@ def catalogList():
 @app.route("/catalogList/<int:category_id>")
 def enterCate(category_id):
 	cateItems = session.query(CategoryItem).filter_by(category_id=category_id).all()
-	return render_template("cataItems.html", items=cateItems)
+	return render_template("cataItems.html", items=cateItems, category_id=category_id)
+
+@app.route("/catalogList/<int:category_id>/<int:item_id>")
+def enterItem(category_id, item_id):
+	item = session.query(CategoryItem).filter_by(id=item_id)[0]
+	category = session.query(Category).filter_by(id=category_id)[0]
+	return render_template("itemDetails.html", item=item, category=category)
 
 @app.route("/catalogList/addNewItem", methods=['GET', 'POST'])
 def addNewItem():

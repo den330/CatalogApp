@@ -6,8 +6,7 @@
 		{% for cate in cates %}
 		<div class = 'cate'>
 			<span class= 'cateName'>
-				<a href= '{{url_for('enterCate', category_id = cate.id)}}'>
-				<p>{{cate.name}}</p>
+				<a href= '{{url_for('enterCate', category_id = cate.id)}}'>{{cate.name}} </a>
 			</span>
 		</div>
 		{% endfor %}
