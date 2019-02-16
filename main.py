@@ -140,6 +140,8 @@ def showLogin():
 @app.route("/")
 @app.route("/catalogList")
 def catalogList():
+	DBSession = sessionmaker(bind = engine)
+	session = DBSession()
 	if 'username' not in login_session:
 		return redirect('/login')
 	cates = session.query(Category).all()
@@ -149,6 +151,8 @@ def catalogList():
 
 @app.route("/catalogList/<int:category_id>")
 def enterCate(category_id):
+	DBSession = sessionmaker(bind = engine)
+	session = DBSession()
 	if 'username' not in login_session:
 		return redirect('/login')
 	cateItems = session.query(CategoryItem).filter_by(category_id=category_id).all()
@@ -156,6 +160,8 @@ def enterCate(category_id):
 
 @app.route("/catalogList/<int:category_id>/<int:item_id>")
 def enterItem(category_id, item_id):
+	DBSession = sessionmaker(bind = engine)
+	session = DBSession()
 	if 'username' not in login_session:
 		return redirect('/login')
 	item = session.query(CategoryItem).filter_by(id=item_id)[0]
@@ -164,14 +170,16 @@ def enterItem(category_id, item_id):
 
 @app.route("/catalogList/addNewItem", methods=['GET', 'POST'])
 def addNewItem():
+	DBSession = sessionmaker(bind = engine)
+	session = DBSession()
 	if 'username' not in login_session:
 		return redirect('/login')
 	if request.method == 'GET':
 		return render_template("addNewItem.html")
 	else:
 		categoryName = request.form['Item Category']
-		categoryInStoreList = session.query(Category).filter_by(name=categoryName).all()
-		categoryInStoreList = Category.query.filter(Category.name==categoryName, Category.user_id==login_session['user_id'])
+		# categoryInStoreList = session.query(Category).filter_by(name=categoryName).all()
+		categoryInStoreList = session.query(Category).filter_by(name = categoryName, user_id = login_session['user_id']).all()
 		if len(categoryInStoreList) == 0:
 			newCate = Category(name=categoryName, user_id=login_session['user_id'])
 			session.add(newCate)
@@ -187,6 +195,8 @@ def addNewItem():
 
 @app.route("/catalogList/deleteItem/<int:item_id>")
 def deleteItem(item_id):
+	DBSession = sessionmaker(bind = engine)
+	session = DBSession()
 	if 'username' not in login_session:
 		return redirect('/login')
 	item = session.query(CategoryItem).filter_by(id=item_id)[0]
@@ -204,6 +214,8 @@ def deleteItem(item_id):
 
 @app.route("/catalogList/editItem/<int:item_id>", methods=['GET', 'POST'])
 def editItem(item_id):
+	DBSession = sessionmaker(bind = engine)
+	session = DBSession()
 	if 'username' not in login_session:
 		return redirect('/login')
 	item = session.query(CategoryItem).filter_by(id=item_id)[0]
@@ -248,6 +260,7 @@ def createUser(login_session):
 if __name__ == '__main__':
 	app.secret_key = 'super_secret_key'
 	app.debug = True
+	threaded = False
 	app.run(host='0.0.0.0', port=5000)
 
 
