@@ -47,34 +47,24 @@ def fbconnect():
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
-    # Use token to get user info from API
-    userinfo_url = "https://graph.facebook.com/v2.8/me"
-    '''
-		Due to the formatting for the result from the server token exchange we have to
-		split the token first on commas and select the first index which gives us the key : value
-		for the server access token then we split it on colons to pull out the actual token value
-		and replace the remaining quotes with nothing so that it can be used directly in the graph
-		api calls
-	'''
+    userinfo_url = "https://graph.facebook.com/v3.3/me"
+
     token = result.split(',')[0].split(':')[1].replace('"', '')
 
-    url = 'https://graph.facebook.com/v2.8/me?a' \
+    url = 'https://graph.facebook.com/v3.3/me?a' \
         'ccess_token=%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
-    # print "url sent for API access:%s"% url
-    # print "API JSON result: %s" % result
+
     data = json.loads(result)
     login_session['provider'] = 'facebook'
     login_session['username'] = data["name"]
     login_session['email'] = data["email"]
     login_session['facebook_id'] = data["id"]
 
-    # The token must be stored in the login_session in order to properly logout
     login_session['access_token'] = token
 
-    # Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?'\
+    url = 'https://graph.facebook.com/v3.3/me/picture?'\
         'access_token=%s&redirect=0&height=200&width=200' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
@@ -138,8 +128,7 @@ def catalogList():
         return redirect('/login')
     cates = session.query(Category).all()
     if len(cates) != 0:
-        cates = session.query(Category).filter_by(
-            user_id=login_session['user_id']).all()
+        cates = session.query(Category).all()
     return render_template('cataList.html', cates=cates)
 
 
@@ -178,14 +167,14 @@ def addNewItem():
         categoryName = request.form['Item Category']
         # categoryInStoreList = session.query(Category).filter_by(name=categoryName).all()
         categoryInStoreList = session.query(Category).filter_by(
-            name=categoryName, user_id=login_session['user_id']).all()
+            name=categoryName).all()
         if len(categoryInStoreList) == 0:
-            newCate = Category(name=categoryName,
-                               user_id=login_session['user_id'])
+            newCate = Category(name=categoryName)
             session.add(newCate)
             session.commit()
             newItem = CategoryItem(name=request.form['Item Name'],
                                    info=request.form['Item Info'],
+                                   creator_id=login_session['user_id'],
                                    category_id=newCate.id)
         else:
             newItem = CategoryItem(name=request.form['Item Name'],
@@ -203,6 +192,8 @@ def deleteItem(item_id):
     if 'username' not in login_session:
         return redirect('/login')
     item = session.query(CategoryItem).filter_by(id=item_id)[0]
+    if item.creator_id != login_session['user_id']:
+        return
     category_id = item.category_id
     session.delete(item)
     itemListForThisCate = session.query(
@@ -224,6 +215,8 @@ def editItem(item_id):
     if 'username' not in login_session:
         return redirect('/login')
     item = session.query(CategoryItem).filter_by(id=item_id)[0]
+    if item.creator_id != login_session['user_id']:
+        return
     if request.method == "GET":
         category = session.query(Category).filter_by(id=item.category_id)[0]
         return render_template("editItem.html", item=item, category=category)
@@ -234,8 +227,7 @@ def editItem(item_id):
         categoryInStoreList = session.query(
             Category).filter_by(name=categoryName).all()
         if len(categoryInStoreList) == 0:
-            newCate = Category(name=categoryName,
-                               user_id=login_session['user_id'])
+            newCate = Category(name=categoryName)
             session.add(newCate)
             session.commit()
             item.category_id = newCate.id
